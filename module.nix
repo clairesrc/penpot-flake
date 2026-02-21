@@ -622,6 +622,7 @@ in
           description = "Generate Penpot secrets environment files";
           after = [ "network.target" ];
           wantedBy = [ "multi-user.target" ];
+          restartTriggers = [ secretsScript ];
           serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
