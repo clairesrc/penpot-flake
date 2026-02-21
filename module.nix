@@ -595,14 +595,11 @@ in
 
     # Network creation, secrets, and container dependency overrides
     systemd.services = let
+      networkServiceName = "${containerBackend}-network-penpot";
       mkContainerOverride = name: {
-        "podman-${name}" = {
-          requires = [ "podman-network-penpot.service" "penpot-secrets.service" ];
-          after = [ "podman-network-penpot.service" "penpot-secrets.service" ];
-        };
-        "docker-${name}" = {
-          requires = [ "podman-network-penpot.service" "penpot-secrets.service" ];
-          after = [ "podman-network-penpot.service" "penpot-secrets.service" ];
+        "${containerBackend}-${name}" = {
+          requires = [ "${networkServiceName}.service" "penpot-secrets.service" ];
+          after = [ "${networkServiceName}.service" "penpot-secrets.service" ];
         };
       };
       containerNames = [ "penpot-frontend" "penpot-backend" "penpot-exporter" ]
@@ -610,7 +607,7 @@ in
         ++ optional cfg.enableValkey "penpot-redis";
     in lib.mkMerge ([
       {
-        podman-network-penpot = {
+        ${networkServiceName} = {
           description = "Create Penpot container network";
           after = [ "network.target" ];
           wantedBy = [ "multi-user.target" ];
